@@ -1,4 +1,4 @@
-#include <iostream>
+п»ї#include <iostream>
 #include <string>
 #include <winsock2.h>
 #include <ws2tcpip.h>
@@ -13,70 +13,70 @@ bool isConnectedServer1 = false;
 bool isConnectedServer2 = false;
 
 
-// Функция подключения к серверу
+// Р¤СѓРЅРєС†РёСЏ РїРѕРґРєР»СЋС‡РµРЅРёСЏ Рє СЃРµСЂРІРµСЂСѓ
 std::tuple<SOCKET, std::string, bool> connectToServer(int port) {
-    // Создаем сокет для подключения к серверу
+    // РЎРѕР·РґР°РµРј СЃРѕРєРµС‚ РґР»СЏ РїРѕРґРєР»СЋС‡РµРЅРёСЏ Рє СЃРµСЂРІРµСЂСѓ
     SOCKET clientSocket = socket(AF_INET, SOCK_STREAM, 0);
     if (clientSocket == INVALID_SOCKET) {
-        return std::make_tuple(clientSocket, "Ошибка при создании сокета: " + std::to_string(WSAGetLastError()), false);
+        return std::make_tuple(clientSocket, "РћС€РёР±РєР° РїСЂРё СЃРѕР·РґР°РЅРёРё СЃРѕРєРµС‚Р°: " + std::to_string(WSAGetLastError()), false);
     }
 
-    // Устанавливаем адрес и порт сервера
+    // РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј Р°РґСЂРµСЃ Рё РїРѕСЂС‚ СЃРµСЂРІРµСЂР°
     sockaddr_in serverAddress;
     serverAddress.sin_family = AF_INET;
-    serverAddress.sin_port = htons(port); // Используем порт 8888
+    serverAddress.sin_port = htons(port); // РСЃРїРѕР»СЊР·СѓРµРј РїРѕСЂС‚ 8888
     if (inet_pton(AF_INET, "127.0.0.1", &(serverAddress.sin_addr)) <= 0) {
         closesocket(clientSocket);
-        return std::make_tuple(clientSocket, "Неверный адрес сервера", false);
+        return std::make_tuple(clientSocket, "РќРµРІРµСЂРЅС‹Р№ Р°РґСЂРµСЃ СЃРµСЂРІРµСЂР°", false);
     }
 
-    // Подключаемся к серверу
+    // РџРѕРґРєР»СЋС‡Р°РµРјСЃСЏ Рє СЃРµСЂРІРµСЂСѓ
     if (connect(clientSocket, reinterpret_cast<sockaddr*>(&serverAddress), sizeof(serverAddress)) == SOCKET_ERROR) {
         closesocket(clientSocket);
-        return std::make_tuple(clientSocket, "Ошибка при подключении к серверу: " + std::to_string(WSAGetLastError()), false);
+        return std::make_tuple(clientSocket, "РћС€РёР±РєР° РїСЂРё РїРѕРґРєР»СЋС‡РµРЅРёРё Рє СЃРµСЂРІРµСЂСѓ: " + std::to_string(WSAGetLastError()), false);
     }
     return std::make_tuple(clientSocket, "OK", true);
 }
 
-// Функция для отправки запроса на сервер и получения ответа от него
+// Р¤СѓРЅРєС†РёСЏ РґР»СЏ РѕС‚РїСЂР°РІРєРё Р·Р°РїСЂРѕСЃР° РЅР° СЃРµСЂРІРµСЂ Рё РїРѕР»СѓС‡РµРЅРёСЏ РѕС‚РІРµС‚Р° РѕС‚ РЅРµРіРѕ
 std::tuple<std::string, bool> getResponse(SOCKET clientSocket, std::string request) {
-    // Отправляем запрос серверу
+    // РћС‚РїСЂР°РІР»СЏРµРј Р·Р°РїСЂРѕСЃ СЃРµСЂРІРµСЂСѓ
     int bytesSent = send(clientSocket, request.c_str(), request.length(), 0);
     if (bytesSent == SOCKET_ERROR) {
         closesocket(clientSocket);
-        return std::make_tuple("Ошибка при отправке запроса: " + std::to_string(WSAGetLastError()), false);
+        return std::make_tuple("РћС€РёР±РєР° РїСЂРё РѕС‚РїСЂР°РІРєРµ Р·Р°РїСЂРѕСЃР°: " + std::to_string(WSAGetLastError()), false);
     }
 
-    // Получаем ответ от сервера
+    // РџРѕР»СѓС‡Р°РµРј РѕС‚РІРµС‚ РѕС‚ СЃРµСЂРІРµСЂР°
     char buffer[1024];
     int bytesRead = recv(clientSocket, buffer, sizeof(buffer), 0);
     if (bytesRead == SOCKET_ERROR) {
         closesocket(clientSocket);
-        return std::make_tuple("Ошибка при чтении ответа: " + std::to_string(WSAGetLastError()), false);
+        return std::make_tuple("РћС€РёР±РєР° РїСЂРё С‡С‚РµРЅРёРё РѕС‚РІРµС‚Р°: " + std::to_string(WSAGetLastError()), false);
     }
 
-    // Возвращаем полученный ответ
+    // Р’РѕР·РІСЂР°С‰Р°РµРј РїРѕР»СѓС‡РµРЅРЅС‹Р№ РѕС‚РІРµС‚
     std::string response(buffer, bytesRead);
     return std::make_tuple(response, true);
 }
 
 int main() {
-    // Установка русского языка для вывода в консоли
+    // РЈСЃС‚Р°РЅРѕРІРєР° СЂСѓСЃСЃРєРѕРіРѕ СЏР·С‹РєР° РґР»СЏ РІС‹РІРѕРґР° РІ РєРѕРЅСЃРѕР»Рё
     std::setlocale(LC_ALL, "Russian");
 
-    // Инициализация библиотеки Winsock
+    // РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ Р±РёР±Р»РёРѕС‚РµРєРё Winsock
     WSADATA wsaData;
     if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
-        std::cerr << "Ошибка при инициализации Winsock" << std::endl;
+        std::cerr << "РћС€РёР±РєР° РїСЂРё РёРЅРёС†РёР°Р»РёР·Р°С†РёРё Winsock" << std::endl;
         return 1;
     }
 
-    // Вывод доступных команд
-    std::cout << "Доступные команды: \n connectServer1 и connectServer2 - подключение к серверам \n disconnectServer1 и disconnectServer2 - отключение от серверов \n Сервер 1: \n  numButtons - количество клавиш мыши \n  hasMouseWheel - наличие колеса прокрутки \n Сервер 2: \n  pid - идентификатор серверного процесса \n  userTime - время работы серверного процесса в пользовательском режиме \nquit - закрыть программу" << std::endl;
+    // Р’С‹РІРѕРґ РґРѕСЃС‚СѓРїРЅС‹С… РєРѕРјР°РЅРґ
+    std::cout << "Р”РѕСЃС‚СѓРїРЅС‹Рµ РєРѕРјР°РЅРґС‹: \n connectServer1 Рё connectServer2 - РїРѕРґРєР»СЋС‡РµРЅРёРµ Рє СЃРµСЂРІРµСЂР°Рј \n disconnectServer1 Рё disconnectServer2 - РѕС‚РєР»СЋС‡РµРЅРёРµ РѕС‚ СЃРµСЂРІРµСЂРѕРІ \n РЎРµСЂРІРµСЂ 1: \n  numButtons - РєРѕР»РёС‡РµСЃС‚РІРѕ РєР»Р°РІРёС€ РјС‹С€Рё \n  hasMouseWheel - РЅР°Р»РёС‡РёРµ РєРѕР»РµСЃР° РїСЂРѕРєСЂСѓС‚РєРё \n РЎРµСЂРІРµСЂ 2: \n  pid - РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СЃРµСЂРІРµСЂРЅРѕРіРѕ РїСЂРѕС†РµСЃСЃР° \n  userTime - РІСЂРµРјСЏ СЂР°Р±РѕС‚С‹ СЃРµСЂРІРµСЂРЅРѕРіРѕ РїСЂРѕС†РµСЃСЃР° РІ РїРѕР»СЊР·РѕРІР°С‚РµР»СЊСЃРєРѕРј СЂРµР¶РёРјРµ \nquit - Р·Р°РєСЂС‹С‚СЊ РїСЂРѕРіСЂР°РјРјСѓ" << std::endl;
     
-    // Чтение и обработка сообщенных пользователем команд
+    // Р§С‚РµРЅРёРµ Рё РѕР±СЂР°Р±РѕС‚РєР° СЃРѕРѕР±С‰РµРЅРЅС‹С… РїРѕР»СЊР·РѕРІР°С‚РµР»РµРј РєРѕРјР°РЅРґ
     std::string msg;
-    std::cout << "Введите команду" << std::endl;
+    std::cout << "Р’РІРµРґРёС‚Рµ РєРѕРјР°РЅРґСѓ" << std::endl;
     std::cin >> msg;
     while (msg != "quit") {
         std::string resp;
@@ -110,38 +110,38 @@ int main() {
             tie(resp, ok) = getResponse(clientSocket1, msg);
             std::cout << resp << std::endl;
             if (!ok) {
-                std::cout << "Попробуйте переподключиться к серверу" << std::endl;
+                std::cout << "РџРѕРїСЂРѕР±СѓР№С‚Рµ РїРµСЂРµРїРѕРґРєР»СЋС‡РёС‚СЊСЃСЏ Рє СЃРµСЂРІРµСЂСѓ" << std::endl;
             }
         }
         else if (msg == "hasMouseWheel") {
             tie(resp, ok) = getResponse(clientSocket1, msg);
             std::cout << resp << std::endl;
             if (!ok) {
-                std::cout << "Попробуйте переподключиться к серверу" << std::endl;
+                std::cout << "РџРѕРїСЂРѕР±СѓР№С‚Рµ РїРµСЂРµРїРѕРґРєР»СЋС‡РёС‚СЊСЃСЏ Рє СЃРµСЂРІРµСЂСѓ" << std::endl;
             }
         }
         else if (msg == "pid") {
             tie(resp, ok) = getResponse(clientSocket2, msg);
             std::cout << resp << std::endl;
             if (!ok) {
-                std::cout << "Попробуйте переподключиться к серверу" << std::endl;
+                std::cout << "РџРѕРїСЂРѕР±СѓР№С‚Рµ РїРµСЂРµРїРѕРґРєР»СЋС‡РёС‚СЊСЃСЏ Рє СЃРµСЂРІРµСЂСѓ" << std::endl;
             }
         }
         else if (msg == "userTime") {
             tie(resp, ok) = getResponse(clientSocket2, msg);
             std::cout << resp << std::endl;
             if (!ok) {
-                std::cout << "Попробуйте переподключиться к серверу" << std::endl;
+                std::cout << "РџРѕРїСЂРѕР±СѓР№С‚Рµ РїРµСЂРµРїРѕРґРєР»СЋС‡РёС‚СЊСЃСЏ Рє СЃРµСЂРІРµСЂСѓ" << std::endl;
             }
         }
         else {
-            std::cout << "Такая команда не найдена" << std::endl;
+            std::cout << "РўР°РєР°СЏ РєРѕРјР°РЅРґР° РЅРµ РЅР°Р№РґРµРЅР°" << std::endl;
         }
-        std::cout << "Введите команду" << std::endl;
+        std::cout << "Р’РІРµРґРёС‚Рµ РєРѕРјР°РЅРґСѓ" << std::endl;
         std::cin >> msg;
     }
 
-    // Выполняем чистку Winsock
+    // Р’С‹РїРѕР»РЅСЏРµРј С‡РёСЃС‚РєСѓ Winsock
     WSACleanup();
 
     return 0;

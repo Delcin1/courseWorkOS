@@ -1,4 +1,4 @@
-#include <iostream>
+п»ї#include <iostream>
 #include <string>
 #include <winsock2.h>
 #include <ws2tcpip.h>
@@ -31,54 +31,54 @@ HWND task2Btn;
 HWND disconnectBtn;
 
 
-// Функция подключения к серверу
+// Р¤СѓРЅРєС†РёСЏ РїРѕРґРєР»СЋС‡РµРЅРёСЏ Рє СЃРµСЂРІРµСЂСѓ
 std::tuple<SOCKET, std::string, bool> connectToServer(int port) {
-    // Создаем сокет для подключения к серверу
+    // РЎРѕР·РґР°РµРј СЃРѕРєРµС‚ РґР»СЏ РїРѕРґРєР»СЋС‡РµРЅРёСЏ Рє СЃРµСЂРІРµСЂСѓ
     SOCKET clientSocket = socket(AF_INET, SOCK_STREAM, 0);
     if (clientSocket == INVALID_SOCKET) {
-        return std::make_tuple(clientSocket, "Ошибка при создании сокета: " + std::to_string(WSAGetLastError()), false);
+        return std::make_tuple(clientSocket, "РћС€РёР±РєР° РїСЂРё СЃРѕР·РґР°РЅРёРё СЃРѕРєРµС‚Р°: " + std::to_string(WSAGetLastError()), false);
     }
 
-    // Устанавливаем адрес и порт сервера
+    // РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј Р°РґСЂРµСЃ Рё РїРѕСЂС‚ СЃРµСЂРІРµСЂР°
     sockaddr_in serverAddress;
     serverAddress.sin_family = AF_INET;
-    serverAddress.sin_port = htons(port); // Используем порт 8888
+    serverAddress.sin_port = htons(port); // РСЃРїРѕР»СЊР·СѓРµРј РїРѕСЂС‚ 8888
     if (inet_pton(AF_INET, "127.0.0.1", &(serverAddress.sin_addr)) <= 0) {
-        return std::make_tuple(clientSocket, "Неверный адрес сервера", false);
+        return std::make_tuple(clientSocket, "РќРµРІРµСЂРЅС‹Р№ Р°РґСЂРµСЃ СЃРµСЂРІРµСЂР°", false);
     }
 
-    // Подключаемся к серверу
+    // РџРѕРґРєР»СЋС‡Р°РµРјСЃСЏ Рє СЃРµСЂРІРµСЂСѓ
     if (connect(clientSocket, reinterpret_cast<sockaddr*>(&serverAddress), sizeof(serverAddress)) == SOCKET_ERROR) {
-        return std::make_tuple(clientSocket, "Ошибка при подключении к серверу: " + std::to_string(WSAGetLastError()), false);
+        return std::make_tuple(clientSocket, "РћС€РёР±РєР° РїСЂРё РїРѕРґРєР»СЋС‡РµРЅРёРё Рє СЃРµСЂРІРµСЂСѓ: " + std::to_string(WSAGetLastError()), false);
     }
     return std::make_tuple(clientSocket, "OK", true);
 }
 
-// Функция для отправки запроса на сервер и получения ответа от него
+// Р¤СѓРЅРєС†РёСЏ РґР»СЏ РѕС‚РїСЂР°РІРєРё Р·Р°РїСЂРѕСЃР° РЅР° СЃРµСЂРІРµСЂ Рё РїРѕР»СѓС‡РµРЅРёСЏ РѕС‚РІРµС‚Р° РѕС‚ РЅРµРіРѕ
 std::tuple<std::string, bool> getResponse(SOCKET clientSocket, std::string request) {
-    // Отправляем запрос серверу
+    // РћС‚РїСЂР°РІР»СЏРµРј Р·Р°РїСЂРѕСЃ СЃРµСЂРІРµСЂСѓ
     int bytesSent = send(clientSocket, request.c_str(), request.length(), 0);
     if (bytesSent == SOCKET_ERROR) {
         closesocket(clientSocket);
-        return std::make_tuple("Ошибка при отправке запроса: " + std::to_string(WSAGetLastError()), false);
+        return std::make_tuple("РћС€РёР±РєР° РїСЂРё РѕС‚РїСЂР°РІРєРµ Р·Р°РїСЂРѕСЃР°: " + std::to_string(WSAGetLastError()), false);
     }
 
-    // Получаем ответ от сервера
+    // РџРѕР»СѓС‡Р°РµРј РѕС‚РІРµС‚ РѕС‚ СЃРµСЂРІРµСЂР°
     char buffer[1024];
     int bytesRead = recv(clientSocket, buffer, sizeof(buffer), 0);
     if (bytesRead == SOCKET_ERROR) {
         closesocket(clientSocket);
-        return std::make_tuple("Ошибка при чтении ответа: " + std::to_string(WSAGetLastError()), false);
+        return std::make_tuple("РћС€РёР±РєР° РїСЂРё С‡С‚РµРЅРёРё РѕС‚РІРµС‚Р°: " + std::to_string(WSAGetLastError()), false);
     }
 
-    // Возвращаем полученный ответ
+    // Р’РѕР·РІСЂР°С‰Р°РµРј РїРѕР»СѓС‡РµРЅРЅС‹Р№ РѕС‚РІРµС‚
     std::string response(buffer, bytesRead);
     return std::make_tuple(response, true);
 }
 
 
 
-// Функция для инициализации графического интерфейса
+// Р¤СѓРЅРєС†РёСЏ РґР»СЏ РёРЅРёС†РёР°Р»РёР·Р°С†РёРё РіСЂР°С„РёС‡РµСЃРєРѕРіРѕ РёРЅС‚РµСЂС„РµР№СЃР°
 int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR args, int ncmdshow) {
     WNDCLASS SoftwareMainClass = NewWindowClass((HBRUSH)COLOR_WINDOW, LoadCursor(NULL, IDC_ARROW), hInst, LoadIcon(NULL, IDI_QUESTION),
         L"MainWindClass", SoftwareMainProcedure);
@@ -96,7 +96,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR args, int ncmdsho
     return 0;
 }
 
-// Функция для создания класса окна графического интерфейса
+// Р¤СѓРЅРєС†РёСЏ РґР»СЏ СЃРѕР·РґР°РЅРёСЏ РєР»Р°СЃСЃР° РѕРєРЅР° РіСЂР°С„РёС‡РµСЃРєРѕРіРѕ РёРЅС‚РµСЂС„РµР№СЃР°
 WNDCLASS NewWindowClass(HBRUSH BGColor, HCURSOR Cursor, HINSTANCE hInst, HICON Icon, LPCWSTR Name, WNDPROC Procedure) {
     WNDCLASS NWC = { 0 };
 
@@ -110,30 +110,30 @@ WNDCLASS NewWindowClass(HBRUSH BGColor, HCURSOR Cursor, HINSTANCE hInst, HICON I
     return NWC;
 }
 
-// Функция обработки комманд графического интерфейса
+// Р¤СѓРЅРєС†РёСЏ РѕР±СЂР°Р±РѕС‚РєРё РєРѕРјРјР°РЅРґ РіСЂР°С„РёС‡РµСЃРєРѕРіРѕ РёРЅС‚РµСЂС„РµР№СЃР°
 LRESULT CALLBACK SoftwareMainProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
     switch (msg) {
     case WM_COMMAND:
         switch (wp) {
-        case BackBtnAction:                         // Команда для возвращения в главное меню
+        case BackBtnAction:                         // РљРѕРјР°РЅРґР° РґР»СЏ РІРѕР·РІСЂР°С‰РµРЅРёСЏ РІ РіР»Р°РІРЅРѕРµ РјРµРЅСЋ
             ShowWindow(backBtn, SW_HIDE);
             ShowWindow(disconnectBtn, SW_HIDE);
-            SetWindowText(task1Btn, L"Сервер 1");
-            SetWindowText(task2Btn, L"Сервер 2");
+            SetWindowText(task1Btn, L"РЎРµСЂРІРµСЂ 1");
+            SetWindowText(task2Btn, L"РЎРµСЂРІРµСЂ 2");
             isServer1 = false;
             isServer2 = false;
             isMenu = true;
             ShowWindow(task1Btn, SW_SHOW);
             ShowWindow(task2Btn, SW_SHOW);
             break;
-        case Task1BtnAction:                        // Команда для запуска сервера 1/отправления первого запроса серверу N
+        case Task1BtnAction:                        // РљРѕРјР°РЅРґР° РґР»СЏ Р·Р°РїСѓСЃРєР° СЃРµСЂРІРµСЂР° 1/РѕС‚РїСЂР°РІР»РµРЅРёСЏ РїРµСЂРІРѕРіРѕ Р·Р°РїСЂРѕСЃР° СЃРµСЂРІРµСЂСѓ N
             if (isMenu) {
                 if (!isConnectedServer1) {
                     std::string msg;
                     bool ok;
                     tie(clientSocket1, msg, ok) = connectToServer(8888);
                     if (!ok) {
-                        MessageBoxA(hWnd, (LPCSTR)msg.c_str(), "Ошибка подключения", MB_OK);
+                        MessageBoxA(hWnd, (LPCSTR)msg.c_str(), "РћС€РёР±РєР° РїРѕРґРєР»СЋС‡РµРЅРёСЏ", MB_OK);
                         closesocket(clientSocket1);
                         break;
                     }
@@ -141,8 +141,8 @@ LRESULT CALLBACK SoftwareMainProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp
                 }
                 ShowWindow(backBtn, SW_SHOW);
                 ShowWindow(disconnectBtn, SW_SHOW);
-                SetWindowText(task1Btn, L"Количество клавиш мыши");
-                SetWindowText(task2Btn, L"Наличие колеса прокрутки");
+                SetWindowText(task1Btn, L"РљРѕР»РёС‡РµСЃС‚РІРѕ РєР»Р°РІРёС€ РјС‹С€Рё");
+                SetWindowText(task2Btn, L"РќР°Р»РёС‡РёРµ РєРѕР»РµСЃР° РїСЂРѕРєСЂСѓС‚РєРё");
                 ShowWindow(task1Btn, SW_SHOW);
                 ShowWindow(task2Btn, SW_SHOW);
                 isServer1 = true;
@@ -153,30 +153,30 @@ LRESULT CALLBACK SoftwareMainProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp
                 bool ok;
                 tie(response, ok) = getResponse(clientSocket1, "numButtons");
                 if (!ok) {
-                    MessageBoxA(hWnd, (LPCSTR)response.c_str(), "Ошибка получения ответа от сервера", MB_OK);
+                    MessageBoxA(hWnd, (LPCSTR)response.c_str(), "РћС€РёР±РєР° РїРѕР»СѓС‡РµРЅРёСЏ РѕС‚РІРµС‚Р° РѕС‚ СЃРµСЂРІРµСЂР°", MB_OK);
                     break;
                 }
-                MessageBoxA(hWnd, (LPCSTR)response.c_str(), "Ответ сервера", MB_OK);
+                MessageBoxA(hWnd, (LPCSTR)response.c_str(), "РћС‚РІРµС‚ СЃРµСЂРІРµСЂР°", MB_OK);
             }
             else if (isServer2) {
                 std::string response;
                 bool ok;
                 tie(response, ok) = getResponse(clientSocket2, "pid");
                 if (!ok) {
-                    MessageBoxA(hWnd, (LPCSTR)response.c_str(), "Ошибка получения ответа от сервера", MB_OK);
+                    MessageBoxA(hWnd, (LPCSTR)response.c_str(), "РћС€РёР±РєР° РїРѕР»СѓС‡РµРЅРёСЏ РѕС‚РІРµС‚Р° РѕС‚ СЃРµСЂРІРµСЂР°", MB_OK);
                     break;
                 }
-                MessageBoxA(hWnd, (LPCSTR)response.c_str(), "Ответ сервера", MB_OK);
+                MessageBoxA(hWnd, (LPCSTR)response.c_str(), "РћС‚РІРµС‚ СЃРµСЂРІРµСЂР°", MB_OK);
             }
             break;
-        case Task2BtnAction:                        // Команда для запуска сервера 2/отправления второго запроса серверу N
+        case Task2BtnAction:                        // РљРѕРјР°РЅРґР° РґР»СЏ Р·Р°РїСѓСЃРєР° СЃРµСЂРІРµСЂР° 2/РѕС‚РїСЂР°РІР»РµРЅРёСЏ РІС‚РѕСЂРѕРіРѕ Р·Р°РїСЂРѕСЃР° СЃРµСЂРІРµСЂСѓ N
             if (isMenu) {
                 if (!isConnectedServer2) {
                     std::string msg;
                     bool ok;
                     tie(clientSocket2, msg, ok) = connectToServer(8889);
                     if (!ok) {
-                        MessageBoxA(hWnd, (LPCSTR)msg.c_str(), "Ошибка подключения", MB_OK);
+                        MessageBoxA(hWnd, (LPCSTR)msg.c_str(), "РћС€РёР±РєР° РїРѕРґРєР»СЋС‡РµРЅРёСЏ", MB_OK);
                         closesocket(clientSocket2);
                         break;
                     }
@@ -184,8 +184,8 @@ LRESULT CALLBACK SoftwareMainProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp
                 }
                 ShowWindow(backBtn, SW_SHOW);
                 ShowWindow(disconnectBtn, SW_SHOW);
-                SetWindowText(task1Btn, L"Идентификатор серверного процесса");
-                SetWindowText(task2Btn, L"Время работы серверного процесса в пользовательском режиме");
+                SetWindowText(task1Btn, L"РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СЃРµСЂРІРµСЂРЅРѕРіРѕ РїСЂРѕС†РµСЃСЃР°");
+                SetWindowText(task2Btn, L"Р’СЂРµРјСЏ СЂР°Р±РѕС‚С‹ СЃРµСЂРІРµСЂРЅРѕРіРѕ РїСЂРѕС†РµСЃСЃР° РІ РїРѕР»СЊР·РѕРІР°С‚РµР»СЊСЃРєРѕРј СЂРµР¶РёРјРµ");
                 ShowWindow(task1Btn, SW_SHOW);
                 ShowWindow(task2Btn, SW_SHOW);
                 isServer2 = true;
@@ -196,23 +196,23 @@ LRESULT CALLBACK SoftwareMainProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp
                 bool ok;
                 tie(response, ok) = getResponse(clientSocket1, "hasMouseWheel");
                 if (!ok) {
-                    MessageBoxA(hWnd, (LPCSTR)response.c_str(), "Ошибка получения ответа от сервера", MB_OK);
+                    MessageBoxA(hWnd, (LPCSTR)response.c_str(), "РћС€РёР±РєР° РїРѕР»СѓС‡РµРЅРёСЏ РѕС‚РІРµС‚Р° РѕС‚ СЃРµСЂРІРµСЂР°", MB_OK);
                     break;
                 }
-                MessageBoxA(hWnd, (LPCSTR)response.c_str(), "Ответ сервера", MB_OK);
+                MessageBoxA(hWnd, (LPCSTR)response.c_str(), "РћС‚РІРµС‚ СЃРµСЂРІРµСЂР°", MB_OK);
             }
             else if (isServer2) {
                 std::string response;
                 bool ok;
                 tie(response, ok) = getResponse(clientSocket2, "userTime");
                 if (!ok) {
-                    MessageBoxA(hWnd, (LPCSTR)response.c_str(), "Ошибка получения ответа от сервера", MB_OK);
+                    MessageBoxA(hWnd, (LPCSTR)response.c_str(), "РћС€РёР±РєР° РїРѕР»СѓС‡РµРЅРёСЏ РѕС‚РІРµС‚Р° РѕС‚ СЃРµСЂРІРµСЂР°", MB_OK);
                     break;
                 }
-                MessageBoxA(hWnd, (LPCSTR)response.c_str(), "Ответ сервера", MB_OK);
+                MessageBoxA(hWnd, (LPCSTR)response.c_str(), "РћС‚РІРµС‚ СЃРµСЂРІРµСЂР°", MB_OK);
             }
             break;
-        case DisconnectBtnAction:                   // Команда для отключения от сервера N
+        case DisconnectBtnAction:                   // РљРѕРјР°РЅРґР° РґР»СЏ РѕС‚РєР»СЋС‡РµРЅРёСЏ РѕС‚ СЃРµСЂРІРµСЂР° N
             if (isServer1) {
                 getResponse(clientSocket1, "stop");
                 closesocket(clientSocket1);
@@ -225,8 +225,8 @@ LRESULT CALLBACK SoftwareMainProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp
             }
             ShowWindow(backBtn, SW_HIDE);
             ShowWindow(disconnectBtn, SW_HIDE);
-            SetWindowText(task1Btn, L"Сервер 1");
-            SetWindowText(task2Btn, L"Сервер 2");
+            SetWindowText(task1Btn, L"РЎРµСЂРІРµСЂ 1");
+            SetWindowText(task2Btn, L"РЎРµСЂРІРµСЂ 2");
             ShowWindow(task1Btn, SW_SHOW);
             ShowWindow(task2Btn, SW_SHOW);
             isServer1 = false;
@@ -235,16 +235,16 @@ LRESULT CALLBACK SoftwareMainProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp
             break;
         }
         break;
-    case WM_CREATE:                                 // Код, выполняющийся при запуске графического интерфейса
+    case WM_CREATE:                                 // РљРѕРґ, РІС‹РїРѕР»РЅСЏСЋС‰РёР№СЃСЏ РїСЂРё Р·Р°РїСѓСЃРєРµ РіСЂР°С„РёС‡РµСЃРєРѕРіРѕ РёРЅС‚РµСЂС„РµР№СЃР°
         MainWndAddWidgets(hWnd);
-        // Инициализация библиотеки Winsock
+        // РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ Р±РёР±Р»РёРѕС‚РµРєРё Winsock
         WSADATA wsaData;
         if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
-            std::cerr << "Ошибка при инициализации Winsock" << std::endl;
+            std::cerr << "РћС€РёР±РєР° РїСЂРё РёРЅРёС†РёР°Р»РёР·Р°С†РёРё Winsock" << std::endl;
             return 1;
         }
         break;
-    case WM_DESTROY:                                // Код, выполняющийся при закрытии графического интерфейса
+    case WM_DESTROY:                                // РљРѕРґ, РІС‹РїРѕР»РЅСЏСЋС‰РёР№СЃСЏ РїСЂРё Р·Р°РєСЂС‹С‚РёРё РіСЂР°С„РёС‡РµСЃРєРѕРіРѕ РёРЅС‚РµСЂС„РµР№СЃР°
         if (isConnectedServer1) {
             getResponse(clientSocket1, "stop");
             closesocket(clientSocket1);
@@ -260,10 +260,10 @@ LRESULT CALLBACK SoftwareMainProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp
     }
 }
 
-// Функция добавления элементов в графический интерфейс
+// Р¤СѓРЅРєС†РёСЏ РґРѕР±Р°РІР»РµРЅРёСЏ СЌР»РµРјРµРЅС‚РѕРІ РІ РіСЂР°С„РёС‡РµСЃРєРёР№ РёРЅС‚РµСЂС„РµР№СЃ
 void MainWndAddWidgets(HWND hWnd) {
-    backBtn = CreateWindowA("button", "Назад", WS_CHILD | BS_MULTILINE | ES_CENTER, 5, 20, 100, 60, hWnd, (HMENU)BackBtnAction, NULL, NULL);
-    task1Btn = CreateWindowA("button", "Сервер 1", WS_VISIBLE | WS_CHILD | BS_MULTILINE | ES_CENTER, 175, 10, 150, 90, hWnd, (HMENU)Task1BtnAction, NULL, NULL);
-    task2Btn = CreateWindowA("button", "Сервер 2", WS_VISIBLE | WS_CHILD | BS_MULTILINE | ES_CENTER, 175, 105, 150, 90, hWnd, (HMENU)Task2BtnAction, NULL, NULL);
-    disconnectBtn = CreateWindowA("button", "Отключиться от сервера", WS_CHILD | BS_MULTILINE | ES_CENTER, 5, 150, 100, 60, hWnd, (HMENU)DisconnectBtnAction, NULL, NULL);
+    backBtn = CreateWindowA("button", "РќР°Р·Р°Рґ", WS_CHILD | BS_MULTILINE | ES_CENTER, 5, 20, 100, 60, hWnd, (HMENU)BackBtnAction, NULL, NULL);
+    task1Btn = CreateWindowA("button", "РЎРµСЂРІРµСЂ 1", WS_VISIBLE | WS_CHILD | BS_MULTILINE | ES_CENTER, 175, 10, 150, 90, hWnd, (HMENU)Task1BtnAction, NULL, NULL);
+    task2Btn = CreateWindowA("button", "РЎРµСЂРІРµСЂ 2", WS_VISIBLE | WS_CHILD | BS_MULTILINE | ES_CENTER, 175, 105, 150, 90, hWnd, (HMENU)Task2BtnAction, NULL, NULL);
+    disconnectBtn = CreateWindowA("button", "РћС‚РєР»СЋС‡РёС‚СЊСЃСЏ РѕС‚ СЃРµСЂРІРµСЂР°", WS_CHILD | BS_MULTILINE | ES_CENTER, 5, 150, 100, 60, hWnd, (HMENU)DisconnectBtnAction, NULL, NULL);
 }

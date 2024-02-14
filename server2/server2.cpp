@@ -1,4 +1,4 @@
-#include <iostream>
+п»ї#include <iostream>
 #include <string>
 #include <thread>
 #include <fstream>
@@ -14,87 +14,87 @@
 
 #pragma comment(lib, "ws2_32.lib")
 
-// Функция проверки на повторный запуск
+// Р¤СѓРЅРєС†РёСЏ РїСЂРѕРІРµСЂРєРё РЅР° РїРѕРІС‚РѕСЂРЅС‹Р№ Р·Р°РїСѓСЃРє
 bool IsAnotherInstanceRunning() {
     std::string lockFilePath = "server2.lock";
 
-    // Попытка открыть файл блокировки в режиме чтения
+    // РџРѕРїС‹С‚РєР° РѕС‚РєСЂС‹С‚СЊ С„Р°Р№Р» Р±Р»РѕРєРёСЂРѕРІРєРё РІ СЂРµР¶РёРјРµ С‡С‚РµРЅРёСЏ
     std::ifstream lockFile(lockFilePath);
     if (lockFile.is_open()) {
-        // Файл блокировки уже существует, значит другой экземпляр сервера уже запущен
+        // Р¤Р°Р№Р» Р±Р»РѕРєРёСЂРѕРІРєРё СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓРµС‚, Р·РЅР°С‡РёС‚ РґСЂСѓРіРѕР№ СЌРєР·РµРјРїР»СЏСЂ СЃРµСЂРІРµСЂР° СѓР¶Рµ Р·Р°РїСѓС‰РµРЅ
         lockFile.close();
         return true;
     }
 
-    // Файл блокировки не существует, создаем его
+    // Р¤Р°Р№Р» Р±Р»РѕРєРёСЂРѕРІРєРё РЅРµ СЃСѓС‰РµСЃС‚РІСѓРµС‚, СЃРѕР·РґР°РµРј РµРіРѕ
     std::ofstream newLockFile(lockFilePath);
     if (newLockFile.is_open()) {
-        // Записываем что-нибудь в файл блокировки
+        // Р—Р°РїРёСЃС‹РІР°РµРј С‡С‚Рѕ-РЅРёР±СѓРґСЊ РІ С„Р°Р№Р» Р±Р»РѕРєРёСЂРѕРІРєРё
         newLockFile << "Server lock file";
         newLockFile.close();
         return false;
     }
 
-    // Не удалось создать файл блокировки
+    // РќРµ СѓРґР°Р»РѕСЃСЊ СЃРѕР·РґР°С‚СЊ С„Р°Р№Р» Р±Р»РѕРєРёСЂРѕРІРєРё
     return true;
 }
 
-// Функция удаления файла блокировки
+// Р¤СѓРЅРєС†РёСЏ СѓРґР°Р»РµРЅРёСЏ С„Р°Р№Р»Р° Р±Р»РѕРєРёСЂРѕРІРєРё
 void removeLockFile() {
     std::remove("server2.lock");
 }
 
-// Обработчик события завершения приложения
+// РћР±СЂР°Р±РѕС‚С‡РёРє СЃРѕР±С‹С‚РёСЏ Р·Р°РІРµСЂС€РµРЅРёСЏ РїСЂРёР»РѕР¶РµРЅРёСЏ
 BOOL WINAPI ConsoleCtrlHandler(DWORD ctrlType) {
     if (ctrlType == CTRL_CLOSE_EVENT || ctrlType == CTRL_C_EVENT) {
-        std::cout << "Закрытие сервера..." << std::endl;
-        removeLockFile(); // Удаляем файл блокировки при закрытии через событие CTRL_CLOSE_EVENT
+        std::cout << "Р—Р°РєСЂС‹С‚РёРµ СЃРµСЂРІРµСЂР°..." << std::endl;
+        removeLockFile(); // РЈРґР°Р»СЏРµРј С„Р°Р№Р» Р±Р»РѕРєРёСЂРѕРІРєРё РїСЂРё Р·Р°РєСЂС‹С‚РёРё С‡РµСЂРµР· СЃРѕР±С‹С‚РёРµ CTRL_CLOSE_EVENT
         exit(0);
     }
     return FALSE;
 }
 
-// Функция для обработки клиента
+// Р¤СѓРЅРєС†РёСЏ РґР»СЏ РѕР±СЂР°Р±РѕС‚РєРё РєР»РёРµРЅС‚Р°
 void handleClient(SOCKET clientSocket) {
     std::chrono::steady_clock::time_point startTime = std::chrono::steady_clock::now();
     char buffer[1024];
     bool mustClose = false;
 
     while (!mustClose) {
-        // Получаем запрос от клиента
+        // РџРѕР»СѓС‡Р°РµРј Р·Р°РїСЂРѕСЃ РѕС‚ РєР»РёРµРЅС‚Р°
         int bytesRead = recv(clientSocket, buffer, sizeof(buffer), 0);
         if (bytesRead == SOCKET_ERROR) {
-            std::cerr << "Ошибка при чтении запроса от клиента: " << WSAGetLastError() << std::endl;
+            std::cerr << "РћС€РёР±РєР° РїСЂРё С‡С‚РµРЅРёРё Р·Р°РїСЂРѕСЃР° РѕС‚ РєР»РёРµРЅС‚Р°: " << WSAGetLastError() << std::endl;
             mustClose = true;
         }
         else if (bytesRead == 0) {
-            // Клиент закрыл соединение
+            // РљР»РёРµРЅС‚ Р·Р°РєСЂС‹Р» СЃРѕРµРґРёРЅРµРЅРёРµ
             mustClose = true;
         }
         else {
-            std::cout << "Получаем запрос от клиента" << std::endl;
+            std::cout << "РџРѕР»СѓС‡Р°РµРј Р·Р°РїСЂРѕСЃ РѕС‚ РєР»РёРµРЅС‚Р°" << std::endl;
 
-            // Парсим запрос
+            // РџР°СЂСЃРёРј Р·Р°РїСЂРѕСЃ
             std::string request(buffer, bytesRead);
-            // Отправляем соответствующее сообщение клиенту
+            // РћС‚РїСЂР°РІР»СЏРµРј СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РµРµ СЃРѕРѕР±С‰РµРЅРёРµ РєР»РёРµРЅС‚Сѓ
             std::string response;
             if (request == "pid") {
-                response = "Идентификатор серверного процесса: " + std::to_string(GetCurrentProcessId());
+                response = "РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СЃРµСЂРІРµСЂРЅРѕРіРѕ РїСЂРѕС†РµСЃСЃР°: " + std::to_string(GetCurrentProcessId());
             }
             else if (request == "userTime") {
-                // Получение текущего времени
+                // РџРѕР»СѓС‡РµРЅРёРµ С‚РµРєСѓС‰РµРіРѕ РІСЂРµРјРµРЅРё
                 std::chrono::steady_clock::time_point currentTime = std::chrono::steady_clock::now();
-                // Вычисление продолжительности времени от точки старта до текущего времени
+                // Р’С‹С‡РёСЃР»РµРЅРёРµ РїСЂРѕРґРѕР»Р¶РёС‚РµР»СЊРЅРѕСЃС‚Рё РІСЂРµРјРµРЅРё РѕС‚ С‚РѕС‡РєРё СЃС‚Р°СЂС‚Р° РґРѕ С‚РµРєСѓС‰РµРіРѕ РІСЂРµРјРµРЅРё
                 std::chrono::duration<double> duration = std::chrono::duration_cast<std::chrono::duration<double>>(currentTime - startTime);
 
-                // Перевод продолжительности времени в часы, минуты и секунды
+                // РџРµСЂРµРІРѕРґ РїСЂРѕРґРѕР»Р¶РёС‚РµР»СЊРЅРѕСЃС‚Рё РІСЂРµРјРµРЅРё РІ С‡Р°СЃС‹, РјРёРЅСѓС‚С‹ Рё СЃРµРєСѓРЅРґС‹
                 std::chrono::hours hours = std::chrono::duration_cast<std::chrono::hours>(duration);
                 duration -= hours;
                 std::chrono::minutes minutes = std::chrono::duration_cast<std::chrono::minutes>(duration);
                 duration -= minutes;
                 std::chrono::seconds seconds = std::chrono::duration_cast<std::chrono::seconds>(duration);
 
-                // Форматирование продолжительности времени в строку
+                // Р¤РѕСЂРјР°С‚РёСЂРѕРІР°РЅРёРµ РїСЂРѕРґРѕР»Р¶РёС‚РµР»СЊРЅРѕСЃС‚Рё РІСЂРµРјРµРЅРё РІ СЃС‚СЂРѕРєСѓ
                 std::stringstream ss;
                 ss << std::setfill('0');
                 ss << std::setw(2) << hours.count() << ":";
@@ -102,111 +102,111 @@ void handleClient(SOCKET clientSocket) {
                 ss << std::setw(2) << seconds.count();
 
                 std::string formattedTime = ss.str();
-                response = "Время работы серверного процесса в пользовательском режиме: " + formattedTime;
+                response = "Р’СЂРµРјСЏ СЂР°Р±РѕС‚С‹ СЃРµСЂРІРµСЂРЅРѕРіРѕ РїСЂРѕС†РµСЃСЃР° РІ РїРѕР»СЊР·РѕРІР°С‚РµР»СЊСЃРєРѕРј СЂРµР¶РёРјРµ: " + formattedTime;
             }
             else if (request == "stop") {
-                response = "Соединение закрыто";
+                response = "РЎРѕРµРґРёРЅРµРЅРёРµ Р·Р°РєСЂС‹С‚Рѕ";
                 mustClose = true;
             }
             else {
-                response = "Неверный запрос";
+                response = "РќРµРІРµСЂРЅС‹Р№ Р·Р°РїСЂРѕСЃ";
             }
 
-            // Отправляем ответ клиенту
+            // РћС‚РїСЂР°РІР»СЏРµРј РѕС‚РІРµС‚ РєР»РёРµРЅС‚Сѓ
             int bytesSent = send(clientSocket, response.c_str(), response.length(), 0);
             if (bytesSent == SOCKET_ERROR) {
-                std::cerr << "Ошибка при отправке ответа клиенту: " << WSAGetLastError() << std::endl;
+                std::cerr << "РћС€РёР±РєР° РїСЂРё РѕС‚РїСЂР°РІРєРµ РѕС‚РІРµС‚Р° РєР»РёРµРЅС‚Сѓ: " << WSAGetLastError() << std::endl;
                 mustClose = true;
             }
-            std::cout << " Отправляем ответ клиенту" << std::endl;
+            std::cout << " РћС‚РїСЂР°РІР»СЏРµРј РѕС‚РІРµС‚ РєР»РёРµРЅС‚Сѓ" << std::endl;
         }
     }
 
-    // Закрываем соединение с клиентом
+    // Р—Р°РєСЂС‹РІР°РµРј СЃРѕРµРґРёРЅРµРЅРёРµ СЃ РєР»РёРµРЅС‚РѕРј
     closesocket(clientSocket);
 }
 
 int main() {
-    // Проверка на повторный запуск
+    // РџСЂРѕРІРµСЂРєР° РЅР° РїРѕРІС‚РѕСЂРЅС‹Р№ Р·Р°РїСѓСЃРє
     if (IsAnotherInstanceRunning()) {
-        std::cout << "Другой экземпляр сервера уже запущен." << std::endl;
+        std::cout << "Р”СЂСѓРіРѕР№ СЌРєР·РµРјРїР»СЏСЂ СЃРµСЂРІРµСЂР° СѓР¶Рµ Р·Р°РїСѓС‰РµРЅ." << std::endl;
         return 0;
     }
 
-    // Установка обработчика события завершения приложения
+    // РЈСЃС‚Р°РЅРѕРІРєР° РѕР±СЂР°Р±РѕС‚С‡РёРєР° СЃРѕР±С‹С‚РёСЏ Р·Р°РІРµСЂС€РµРЅРёСЏ РїСЂРёР»РѕР¶РµРЅРёСЏ
     if (!SetConsoleCtrlHandler(ConsoleCtrlHandler, TRUE)) {
-        std::cerr << "Не удалось установить обработчик события завершения" << std::endl;
-        removeLockFile(); // Удаляем файл блокировки при ошибке
+        std::cerr << "РќРµ СѓРґР°Р»РѕСЃСЊ СѓСЃС‚Р°РЅРѕРІРёС‚СЊ РѕР±СЂР°Р±РѕС‚С‡РёРє СЃРѕР±С‹С‚РёСЏ Р·Р°РІРµСЂС€РµРЅРёСЏ" << std::endl;
+        removeLockFile(); // РЈРґР°Р»СЏРµРј С„Р°Р№Р» Р±Р»РѕРєРёСЂРѕРІРєРё РїСЂРё РѕС€РёР±РєРµ
         return 1;
     }
 
-    // Установка русского языка для вывода в консоли
+    // РЈСЃС‚Р°РЅРѕРІРєР° СЂСѓСЃСЃРєРѕРіРѕ СЏР·С‹РєР° РґР»СЏ РІС‹РІРѕРґР° РІ РєРѕРЅСЃРѕР»Рё
     std::setlocale(LC_ALL, "Russian");
 
-    // Инициализация библиотеки Winsock
+    // РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ Р±РёР±Р»РёРѕС‚РµРєРё Winsock
     WSADATA wsaData;
     if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
-        std::cerr << "Ошибка при инициализации Winsock" << std::endl;
+        std::cerr << "РћС€РёР±РєР° РїСЂРё РёРЅРёС†РёР°Р»РёР·Р°С†РёРё Winsock" << std::endl;
         return 1;
     }
 
-    // Создаем сокет для прослушивания клиентов
+    // РЎРѕР·РґР°РµРј СЃРѕРєРµС‚ РґР»СЏ РїСЂРѕСЃР»СѓС€РёРІР°РЅРёСЏ РєР»РёРµРЅС‚РѕРІ
     SOCKET listenSocket = socket(AF_INET, SOCK_STREAM, 0);
     if (listenSocket == INVALID_SOCKET) {
-        std::cerr << "Ошибка при создании сокета: " << WSAGetLastError() << std::endl;
+        std::cerr << "РћС€РёР±РєР° РїСЂРё СЃРѕР·РґР°РЅРёРё СЃРѕРєРµС‚Р°: " << WSAGetLastError() << std::endl;
         WSACleanup();
         return 1;
     }
 
-    // Привязываем сокет к адресу и порту
+    // РџСЂРёРІСЏР·С‹РІР°РµРј СЃРѕРєРµС‚ Рє Р°РґСЂРµСЃСѓ Рё РїРѕСЂС‚Сѓ
     sockaddr_in serverAddress;
     serverAddress.sin_family = AF_INET;
     serverAddress.sin_addr.s_addr = INADDR_ANY;
-    serverAddress.sin_port = htons(8889); // Используем порт 8888
+    serverAddress.sin_port = htons(8889); // РСЃРїРѕР»СЊР·СѓРµРј РїРѕСЂС‚ 8888
 
     if (bind(listenSocket, reinterpret_cast<sockaddr*>(&serverAddress), sizeof(serverAddress)) == SOCKET_ERROR) {
-        std::cerr << "Ошибка при привязке сокета к адресу: " << WSAGetLastError() << std::endl;
+        std::cerr << "РћС€РёР±РєР° РїСЂРё РїСЂРёРІСЏР·РєРµ СЃРѕРєРµС‚Р° Рє Р°РґСЂРµСЃСѓ: " << WSAGetLastError() << std::endl;
         closesocket(listenSocket);
         WSACleanup();
         return 1;
     }
 
-    // Начинаем прослушивание клиентов
+    // РќР°С‡РёРЅР°РµРј РїСЂРѕСЃР»СѓС€РёРІР°РЅРёРµ РєР»РёРµРЅС‚РѕРІ
     if (listen(listenSocket, SOMAXCONN) == SOCKET_ERROR) {
-        std::cerr << "Ошибка при начале прослушивания сокета: " << WSAGetLastError() << std::endl;
+        std::cerr << "РћС€РёР±РєР° РїСЂРё РЅР°С‡Р°Р»Рµ РїСЂРѕСЃР»СѓС€РёРІР°РЅРёСЏ СЃРѕРєРµС‚Р°: " << WSAGetLastError() << std::endl;
         closesocket(listenSocket);
         WSACleanup();
         return 1;
     }
 
-    std::cout << "Сервер запущен. Ожидание подключений..." << std::endl;
+    std::cout << "РЎРµСЂРІРµСЂ Р·Р°РїСѓС‰РµРЅ. РћР¶РёРґР°РЅРёРµ РїРѕРґРєР»СЋС‡РµРЅРёР№..." << std::endl;
 
     std::vector<std::thread> clientThreads;
 
     while (true) {
-        // Принимаем входящее подключение
+        // РџСЂРёРЅРёРјР°РµРј РІС…РѕРґСЏС‰РµРµ РїРѕРґРєР»СЋС‡РµРЅРёРµ
         SOCKET clientSocket = accept(listenSocket, NULL, NULL);
         if (clientSocket == INVALID_SOCKET) {
-            std::cerr << "Ошибка при принятии подключения: " << WSAGetLastError() << std::endl;
+            std::cerr << "РћС€РёР±РєР° РїСЂРё РїСЂРёРЅСЏС‚РёРё РїРѕРґРєР»СЋС‡РµРЅРёСЏ: " << WSAGetLastError() << std::endl;
             closesocket(listenSocket);
             WSACleanup();
             return 1;
         }
 
-        // Создаем отдельный поток для обработки клиента
+        // РЎРѕР·РґР°РµРј РѕС‚РґРµР»СЊРЅС‹Р№ РїРѕС‚РѕРє РґР»СЏ РѕР±СЂР°Р±РѕС‚РєРё РєР»РёРµРЅС‚Р°
         std::thread clientThread(handleClient, clientSocket);
         clientThreads.push_back(std::move(clientThread));
     }
 
-    // Дожидаемся завершения всех потоков
+    // Р”РѕР¶РёРґР°РµРјСЃСЏ Р·Р°РІРµСЂС€РµРЅРёСЏ РІСЃРµС… РїРѕС‚РѕРєРѕРІ
     for (std::thread& thread : clientThreads) {
         thread.join();
     }
 
-    // Закрываем сокет для прослушивания
+    // Р—Р°РєСЂС‹РІР°РµРј СЃРѕРєРµС‚ РґР»СЏ РїСЂРѕСЃР»СѓС€РёРІР°РЅРёСЏ
     closesocket(listenSocket);
 
-    // Выполняем чистку Winsock
+    // Р’С‹РїРѕР»РЅСЏРµРј С‡РёСЃС‚РєСѓ Winsock
     WSACleanup();
 
     return 0;
